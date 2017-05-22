@@ -1,0 +1,1 @@
+A simple POC using Spring Data JPA Specification.

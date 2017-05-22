@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:jpa="http://www.springframework.org/schema/data/jpa" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="http://www.springframework.org/schema/data/jpa 
+    					   http://www.springframework.org/schema/data/jpa/spring-jpa-1.0.xsd
+                           http://www.springframework.org/schema/beans
+                           http://www.springframework.org/schema/beans/spring-beans-4.0.xsd
+                           http://www.springframework.org/schema/tx
+                           http://www.springframework.org/schema/tx/spring-tx-4.0.xsd">
+
+	<!-- Datasource -->
+	<bean id="poc_dataSource" class="org.apache.commons.dbcp.BasicDataSource"
+		destroy-method="close">
+		<property name="driverClassName" value="${db.driver}" />
+		<property name="url" value="${db.url}" />
+		<property name="username" value="${db.username}" />
+		<property name="password" value="${db.password}" />
+	</bean>
+
+	<!-- Datasource for Users db -->
+	<bean id="user_dataSource" class="org.apache.commons.dbcp.BasicDataSource"
+		destroy-method="close">
+		<property name="driverClassName" value="${db2.driver}" />
+		<property name="url" value="${db2.url}" />
+		<property name="username" value="${db2.username}" />
+		<property name="password" value="${db2.password}" />
+	</bean>
+
+	<!-- Entity Manager Factory bean -->
+	<bean id="poc_entityManagerFactory"
+		class="org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean">
+		<property name="dataSource" ref="poc_dataSource" />
+		<property name="jpaVendorAdapter" ref="poc_hibernateJpaVendorAdapter" />
+		<!-- Set base package of your entities -->
+		<property name="packagesToScan" value="com.poc.springdatajpa.model.main" />
+		<!-- Set share cache mode -->
+		<property name="sharedCacheMode" value="ENABLE_SELECTIVE" />
+		<!-- Set validation mode -->
+		<property name="validationMode" value="NONE" />
+		<!-- Set JPA properties -->
+		<property name="jpaProperties">
+			<props>
+				<prop key="hibernate.dialect">${hibernate.dialect}</prop>
+				<prop key="hibernate.hbm2ddl.auto">${hibernate.hbm2ddl.auto}</prop>
+				<prop key="hibernate.ejb.naming_strategy">${hibernate.ejb.naming_strategy}</prop>
+				<prop key="hibernate.show_sql">${hibernate.show_sql}</prop>
+				<prop key="hibernate.format_sql">${hibernate.format_sql}</prop>
+			</props>
+		</property>
+	</bean>
+
+	<!-- Entity Manager Factory bean -->
+	<bean id="user_entityManagerFactory"
+		class="org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean">
+		<property name="dataSource" ref="user_dataSource" />
+		<property name="jpaVendorAdapter" ref="poc_hibernateJpaVendorAdapter" />
+		<!-- Set base package of your entities -->
+		<property name="packagesToScan" value="com.poc.springdatajpa.model.user" />
+		<!-- Set share cache mode -->
+		<property name="sharedCacheMode" value="ENABLE_SELECTIVE" />
+		<!-- Set validation mode -->
+		<property name="validationMode" value="NONE" />
+		<!-- Set JPA properties -->
+		<property name="jpaProperties">
+			<props>
+				<prop key="hibernate.dialect">${hibernate.dialect}</prop>
+				<prop key="hibernate.hbm2ddl.auto">${hibernate.hbm2ddl.auto}</prop>
+				<prop key="hibernate.ejb.naming_strategy">${hibernate.ejb.naming_strategy}</prop>
+				<prop key="hibernate.show_sql">${hibernate.show_sql}</prop>
+				<prop key="hibernate.format_sql">${hibernate.format_sql}</prop>
+			</props>
+		</property>
+	</bean>
+
+	<bean id="poc_hibernateJpaVendorAdapter"
+		class="org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter" />
+
+	<bean id="user_hibernateJpaVendorAdapter"
+		class="org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter" />
+
+	<bean id="poc_transactionManager" class="org.springframework.orm.jpa.JpaTransactionManager">
+		<property name="entityManagerFactory" ref="poc_entityManagerFactory" />
+	</bean>
+
+	<bean id="user_transactionManager" class="org.springframework.orm.jpa.JpaTransactionManager">
+		<property name="entityManagerFactory" ref="user_entityManagerFactory" />
+	</bean>
+
+	<!-- Enables annotation-driven transaction management. -->
+	<tx:annotation-driven transaction-manager="poc_transactionManager" />
+	<tx:annotation-driven transaction-manager="user_transactionManager" />
+
+	<jpa:repositories base-package="com.poc.springdatajpa.repository.main"
+		entity-manager-factory-ref="poc_entityManagerFactory"
+		transaction-manager-ref="poc_transactionManager" />
+
+	<jpa:repositories base-package="com.poc.springdatajpa.repository.user"
+		entity-manager-factory-ref="user_entityManagerFactory"
+		transaction-manager-ref="user_transactionManager" />
+
+</beans>
